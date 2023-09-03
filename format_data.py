@@ -1,8 +1,19 @@
 import numpy as np
 import pandas as pd
-import indicators as ind
+import general_pkg.indicators as ind
+import general_pkg.get_data as gd
 
+pd.options.mode.chained_assignment = None  # default='warn'
 
+'''
+For now: Request data from Polygon API.
+Implement later: Make continual requests to Polygon API. 
+
+Format the data. Remove nan values, split into training and testing data.
+
+'''
+
+TRAIN_SPLIT = 0.8 # 80% training, 20% testing
 WINDOW_LENGTH = 30
 FEAT_COLS = ['Open', 'Close', 'High', 'Low'] # need to rename cols from polygon
 
@@ -33,9 +44,12 @@ def fill_returns(prices: pd.DataFrame) -> pd.DataFrame:
 def classify(prices: pd.DataFrame) -> pd.DataFrame:
     '''
     Adds in a classification column to label data
-    Classifications:
+    Current Classifications:
     - 0: Closing price below EMA
     - 1: Closing price above or equal to EMA
+
+    Future, will replace this with triangle labeling.
+
     '''
     close = prices['Close']
     averages = ind.ema(close, 21) # 21 EMA
@@ -52,7 +66,6 @@ def classify(prices: pd.DataFrame) -> pd.DataFrame:
         choicelist = [0,1]
     )
 
-    # prices['averages'] = averages
     prices = prices[21:]
     prices['Class'] = result
     
@@ -76,6 +89,47 @@ def reshape_input(input: np.array) -> np.array:
         reshaped[:,:,n] = input[:, n*WINDOW_LENGTH:(n+1)*WINDOW_LENGTH]
 
     return reshaped
+
+
+def format_data():
+
+    # Store list of dataframes for each ticker
+    price_dfs = gd.get_data()
+
+    for prices in price_dfs:
+        # Call fill + classify functions from format_data.py
+        prices = fill_returns(prices)
+        prices = classify(prices)
+        # Calculating percentages may result in -inf/inf values, replace with nan and drop
+        prices.replace([np.inf, -np.inf],np.nan)
+        prices.dropna(axis='index')
+        print(prices)
+    
+    # Combine all the values together
+    values = pd.concat(price_dfs).values 
+
+    # Shuffle values to ensure NN doesn't learn order
+    np.random.shuffle(values)
+
+    # Split rows into train and test data (x: input, y: output/labels)
+    split_idx = int(TRAIN_SPLIT*values.shape[0])
+
+    # Save input training data, exclude last col (labels)
+    np.save('x_train', reshape_input(values[:split_idx, :-1]))
+
+    # Save input testing data
+    np.save('x_test', reshape_input(values[split_idx:, :-1]))
+
+    # Save output training data
+    np.save('y_train', values[:split_idx, -1])
+
+    # Save output testing data
+    np.save('y_test', values[:split_idx, -1])
+
+
+if __name__ == '__main__':
+    
+    format_data()
 
     
 
