@@ -16,9 +16,7 @@ Installed Libraries: pandas, numpy, requests, tensorflow, backtesting
 ## Current Status
 I am now trying to label the data to train the AI on, using ascending triangles as my first example. This [research paper](https://ui.adsabs.harvard.edu/abs/2018arXiv180800418V/abstract) is the closest thing I could find to what I am doing. They mentioned that they could not find existing datasets to train their networks on, so they had to create their own datasets algorithmically. 
 
-Thus, I am also trying to write an algorithm to label ascending triangles. I followed [this tutorial](https://www.youtube.com/watch?v=WVNB_6JRbl0) to label the pivot points, but after discussing with my relative I need to draw the lines different to how they did, which I'm currently implementing.
-
-Labeling the pivot points:
+Thus, I am also trying to write an algorithm to label ascending triangles. I followed [this tutorial](https://www.youtube.com/watch?v=WVNB_6JRbl0) to label the pivot points, but after discussing with my relative I need to draw the lines different to how they did, which I'm currently implementing. Labeling the pivot points:
 
 ![image](https://github.com/anthonyx24/AI-Technical-Analysis/assets/79112832/7012819c-73d5-4849-a53a-28bf581e789d)
 
