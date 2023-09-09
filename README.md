@@ -19,6 +19,7 @@ I am now trying to label the data to train the AI on, using ascending triangles 
 Thus, I am also trying to write an algorithm to label ascending triangles. I followed [this tutorial](https://www.youtube.com/watch?v=WVNB_6JRbl0) to label the pivot points, but after discussing with my relative I need to draw the lines different to how they did, which I'm currently implementing.
 
 Labeling the pivot points:
+
 ![image](https://github.com/anthonyx24/AI-Technical-Analysis/assets/79112832/7012819c-73d5-4849-a53a-28bf581e789d)
 
 ## Running the Program
