@@ -52,7 +52,15 @@ def findpivots(df, p, f):
     return df
 
 
-def detect(df, back, min_points):
+def close_enough(arr, p1_dex, p2_dex, error) -> bool:
+    range = [arr[p2_dex][1]-error, arr[p2_dex][1]+error]
+    # print(range)
+    if arr[p1_dex][1] > range[0] and arr[p1_dex][1] < range[1] :
+        return True
+    return False
+
+
+def detect(df, back):
     '''
     Draws lines based on pivots:
 
@@ -71,23 +79,31 @@ def detect(df, back, min_points):
     min_points is the minimum number of pivots needed to detect a triangle
 
     '''
-
+    top_lines = [] # Stores the points to draw top lines with
     # Loop through all candles, starting with candle back+1
-    for i in range(back+1, len(df)):
-        minima = np.array([])
-        maxima = np.array([])
+    for i in range(back+1, len(df), back):
+        # print(i)
+        minima = []
+        maxima = []
 
         # Loop through the candle window (defined with back)
         for j in range(i-back, i+1):
             # Append tuples with x,y coords of pivots
             if df.loc[j,'Pivots'] == 'min':
-                minima = np.append(minima, (j,df.loc[j,'Low'])) # Close
+                minima.append((j,df.loc[j,'Low'])) # Close
             elif df.loc[j,'Pivots'] == 'max':
-                maxima = np.append(maxima, (j,df.loc[j,'High'])) # Close
+                maxima.append((j,df.loc[j,'High'])) # Close
         
-        
-        
-def plot(df):
+        # Check with points have same y-pos (brute force)
+        for a in range(len(maxima)):
+            for b in range(a+1, len(maxima)):
+                if close_enough(maxima, a, b, 5):
+                    top_lines.append((maxima[a], maxima[b]))  
+
+    return top_lines
+
+
+def plot(df, top):
     
     df['Points'] = ''
 
@@ -110,13 +126,19 @@ def plot(df):
     fig.add_scatter(x=dfpl.index, y=dfpl.loc[:,'Points'],
                     mode='markers', marker=dict(color='Blue'), name='pivots')
     
+    for i in range(len(top)):
+        fig.add_trace(go.Scatter(x=[top[i][0][0], top[i][1][0]], 
+                                 y=[top[i][0][1], top[i][1][1]], 
+                                 mode='lines'))
+    
     fig.show()
 
 
 if __name__ == '__main__':
     data = gd.get_data()[0]
-    data = findpivots(data, 3, 3)
-    plot(data)
+    data = findpivots(data, 5, 5)
+    top = detect(data, 60)
+    plot(data, top)
     
 
 
